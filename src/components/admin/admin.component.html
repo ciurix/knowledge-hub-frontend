@@ -1,0 +1,123 @@
+<div class="min-h-screen bg-background-light font-display">
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-3">
+          <a routerLink="/" class="flex items-center gap-2 text-primary">
+            <span class="material-symbols-outlined text-3xl">local_library</span>
+            <span class="text-xl font-bold tracking-tight text-slate-900">Knowledge Hub</span>
+          </a>
+        </div>
+        <div class="flex items-center gap-4">
+          <a routerLink="/dashboard" class="text-sm font-semibold text-slate-500 hover:text-primary transition-colors">
+            Dashboard
+          </a>
+          <span class="inline-flex items-center px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-bold">
+            <span class="material-symbols-outlined text-sm mr-1">shield</span>
+            Admin
+          </span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    @if (!isAdmin()) {
+      <div class="text-center py-20">
+        <span class="material-symbols-outlined text-6xl text-red-400 mb-4">lock</span>
+        <h2 class="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
+        <p class="text-slate-500">You need admin privileges to access this page.</p>
+        <a routerLink="/" class="inline-block mt-6 px-6 py-3 bg-primary text-white rounded-lg font-bold hover:bg-primary-dark transition-colors">
+          Go Home
+        </a>
+      </div>
+    } @else {
+      <div class="space-y-8">
+        <!-- Page Header -->
+        <div>
+          <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Category Management</h1>
+          <p class="mt-2 text-slate-500">Add, edit, or remove tutorial categories.</p>
+        </div>
+
+        <!-- Add New Category -->
+        <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+          <h2 class="text-lg font-bold text-slate-900 mb-4">Add New Category</h2>
+          <div class="flex flex-wrap gap-4">
+            <div class="flex-1 min-w-[200px]">
+              <label class="block text-sm font-medium text-slate-700 mb-1">Category Name</label>
+              <input
+                [ngModel]="newCategoryName()"
+                (ngModelChange)="newCategoryName.set($event)"
+                type="text"
+                placeholder="e.g., Machine Learning"
+                class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary focus:border-transparent">
+            </div>
+            <div class="w-48">
+              <label class="block text-sm font-medium text-slate-700 mb-1">Icon</label>
+              <select
+                [ngModel]="newCategoryIcon()"
+                (ngModelChange)="newCategoryIcon.set($event)"
+                class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary focus:border-transparent">
+                @for (icon of availableIcons; track icon) {
+                  <option [value]="icon">{{ icon }}</option>
+                }
+              </select>
+            </div>
+            <div class="flex items-end">
+              <button
+                (click)="addCategory()"
+                [disabled]="!newCategoryName()"
+                class="px-6 py-2 bg-primary text-white rounded-lg font-bold hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                <span class="material-symbols-outlined text-sm mr-1 align-middle">add</span>
+                Add Category
+              </button>
+            </div>
+          </div>
+          <!-- Icon Preview -->
+          <div class="mt-4 flex items-center gap-2 text-sm text-slate-500">
+            <span>Preview:</span>
+            <span class="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 rounded-lg">
+              <span class="material-symbols-outlined text-primary">{{ newCategoryIcon() }}</span>
+              <span class="font-medium">{{ newCategoryName() || 'Category Name' }}</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Existing Categories -->
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-100">
+            <h2 class="text-lg font-bold text-slate-900">Existing Categories</h2>
+          </div>
+          <ul class="divide-y divide-gray-100">
+            @for (cat of categoryService.categories(); track cat._id) {
+              <li class="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                <div class="flex items-center gap-3">
+                  <span class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-primary">{{ cat.icon || 'bookmark' }}</span>
+                  </span>
+                  <div>
+                    <h3 class="font-semibold text-slate-900">{{ cat.name }}</h3>
+                    <p class="text-sm text-slate-400">{{ cat.slug }}</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  @if (isDefaultCategory(cat._id)) {
+                    <span class="text-xs font-medium text-slate-400 bg-gray-100 px-2 py-1 rounded">Default</span>
+                  } @else {
+                    <button
+                      (click)="deleteCategory(cat._id!)"
+                      class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                      <span class="material-symbols-outlined text-lg">delete</span>
+                    </button>
+                  }
+                </div>
+              </li>
+            }
+          </ul>
+        </div>
+      </div>
+    }
+  </main>
+</div>
+

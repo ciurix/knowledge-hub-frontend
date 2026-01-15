@@ -1,0 +1,148 @@
+<div class="min-h-screen bg-background-light font-display">
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-6">
+          <a routerLink="/" class="flex items-center gap-2 text-primary">
+            <span class="material-symbols-outlined text-3xl">local_library</span>
+            <span class="text-xl font-bold tracking-tight text-slate-900">Knowledge Hub</span>
+          </a>
+          <div class="hidden md:flex items-center gap-1 text-sm text-slate-400">
+            <a routerLink="/" class="hover:text-primary transition-colors">Home</a>
+            <span>/</span>
+            <span class="text-slate-600 font-medium truncate max-w-[200px]">{{ tutorial()?.title }}</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          @if (canEdit()) {
+            <button (click)="editTutorial()" class="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg font-bold hover:bg-primary-dark transition-colors">
+              <span class="material-symbols-outlined text-sm">edit</span>
+              Edit Tutorial
+            </button>
+          }
+          @if (authService.isAuthenticated()) {
+            <a routerLink="/dashboard" class="text-sm font-semibold text-slate-500 hover:text-primary transition-colors">
+              Dashboard
+            </a>
+          } @else {
+            <a routerLink="/login" class="text-sm font-semibold text-primary hover:text-primary-dark transition-colors">
+              Sign In
+            </a>
+          }
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="flex items-center justify-center min-h-[60vh]">
+      <div class="text-center">
+        <span class="material-symbols-outlined text-5xl text-primary animate-pulse">hourglass_empty</span>
+        <p class="mt-4 text-slate-500 font-medium">Loading tutorial...</p>
+      </div>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="flex items-center justify-center min-h-[60vh]">
+      <div class="text-center">
+        <span class="material-symbols-outlined text-6xl text-red-400">error</span>
+        <h2 class="mt-4 text-2xl font-bold text-slate-900">{{ error() }}</h2>
+        <p class="mt-2 text-slate-500">The tutorial you're looking for doesn't exist or has been removed.</p>
+        <a routerLink="/" class="inline-block mt-6 px-6 py-3 bg-primary text-white rounded-lg font-bold hover:bg-primary-dark transition-colors">
+          Back to Home
+        </a>
+      </div>
+    </div>
+  }
+
+  <!-- Tutorial Content -->
+  @if (tutorial() && !isLoading() && !error()) {
+    <article class="pb-16">
+      <!-- Hero Section -->
+      <div class="relative h-[400px] overflow-hidden bg-slate-900">
+        <img [src]="getCoverImage()" [alt]="tutorial()!.title" class="w-full h-full object-cover opacity-60">
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent"></div>
+        <div class="absolute bottom-0 left-0 right-0 p-8">
+          <div class="max-w-4xl mx-auto">
+            <!-- Category Badge -->
+            <div class="flex items-center gap-2 mb-4">
+              <span class="inline-flex items-center gap-1 px-3 py-1 bg-primary/90 text-white rounded-full text-sm font-bold">
+                <span class="material-symbols-outlined text-sm">{{ getCategoryIcon(tutorial()!.category) }}</span>
+                {{ getCategoryName(tutorial()!.category) }}
+              </span>
+              @if (!tutorial()!.published) {
+                <span class="px-3 py-1 bg-amber-500 text-white rounded-full text-sm font-bold">Draft</span>
+              }
+            </div>
+            <!-- Title -->
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white leading-tight">
+              {{ tutorial()!.title }}
+            </h1>
+            <!-- Meta Info -->
+            <div class="flex flex-wrap items-center gap-6 mt-6 text-white/80">
+              <div class="flex items-center gap-2">
+                <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
+                  {{ getAuthorName().charAt(0).toUpperCase() }}
+                </div>
+                <div>
+                  <p class="font-semibold text-white">{{ getAuthorName() }}</p>
+                  <p class="text-sm text-white/60">Author</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-xl">calendar_today</span>
+                <span>{{ formatDate(tutorial()!.createdAt) }}</span>
+              </div>
+              @if (tutorial()!.sourceLink) {
+                <a [href]="tutorial()!.sourceLink" target="_blank" rel="noopener noreferrer"
+                   class="flex items-center gap-2 hover:text-white transition-colors">
+                  <span class="material-symbols-outlined text-xl">link</span>
+                  <span>Source</span>
+                </a>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+        <div class="prose prose-lg prose-slate max-w-none">
+          <!-- Tutorial Description/Content -->
+          <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 md:p-12">
+            <div class="whitespace-pre-wrap text-slate-700 leading-relaxed text-lg">{{ tutorial()!.description }}</div>
+          </div>
+        </div>
+
+        <!-- Actions Footer -->
+        <div class="mt-12 flex flex-wrap items-center justify-between gap-4 pt-8 border-t border-gray-200">
+          <a routerLink="/" class="flex items-center gap-2 text-slate-500 hover:text-primary font-semibold transition-colors">
+            <span class="material-symbols-outlined">arrow_back</span>
+            Back to all tutorials
+          </a>
+          <div class="flex items-center gap-4">
+            @if (tutorial()!.sourceLink) {
+              <a [href]="tutorial()!.sourceLink" target="_blank" rel="noopener noreferrer"
+                 class="flex items-center gap-2 px-5 py-2.5 border border-gray-200 rounded-lg font-semibold text-slate-600 hover:border-primary hover:text-primary transition-colors">
+                <span class="material-symbols-outlined text-lg">open_in_new</span>
+                View Source
+              </a>
+            }
+            @if (canEdit()) {
+              <button (click)="editTutorial()"
+                      class="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-lg font-bold hover:bg-primary-dark transition-colors">
+                <span class="material-symbols-outlined text-lg">edit</span>
+                Edit Tutorial
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </article>
+  }
+</div>
+

@@ -1,0 +1,172 @@
+<div class="min-h-screen flex flex-col font-display bg-background-light text-slate-900">
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-3">
+          <div class="text-primary">
+            <span class="material-symbols-outlined text-3xl">local_library</span>
+          </div>
+          <span class="text-xl font-bold tracking-tight">Knowledge Hub</span>
+        </div>
+        <div class="flex items-center gap-3">
+          @if (authService.isAuthenticated()) {
+            <a routerLink="/dashboard" class="flex items-center justify-center px-4 py-2 rounded-lg bg-primary/10 text-primary text-sm font-bold hover:bg-primary/20 transition-all">
+              My Dashboard
+            </a>
+            <button (click)="authService.logout()" class="hidden sm:flex items-center justify-center px-4 py-2 text-sm font-bold text-slate-700 hover:text-red-500 transition-colors">
+              Log Out
+            </button>
+          } @else {
+            <a routerLink="/login" class="hidden sm:flex items-center justify-center px-4 py-2 text-sm font-bold text-slate-700 hover:text-primary transition-colors">
+               Log In
+            </a>
+            <a routerLink="/login" class="flex items-center justify-center px-4 py-2 rounded-lg bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-all shadow-sm">
+               Sign Up
+            </a>
+          }
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative pt-16 pb-20 lg:pt-24 lg:pb-28 overflow-hidden">
+     <div class="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+     <div class="absolute bottom-0 left-0 -mb-20 -ml-20 w-72 h-72 bg-secondary/10 rounded-full blur-3xl"></div>
+     <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+       <span class="inline-block py-1 px-3 rounded-full bg-primary/10 text-primary text-xs font-bold tracking-wide mb-6">
+         LEARN WITHOUT LIMITS
+       </span>
+       <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 leading-[1.15]">
+          Discover, Share, and <br class="hidden sm:block"/> Master New Skills.
+       </h1>
+       <p class="text-lg md:text-xl text-slate-500 mb-10 max-w-2xl mx-auto font-normal leading-relaxed">
+         Join a community of lifelong learners sharing expert tutorials on everything from data science to creative arts.
+       </p>
+       <!-- Search Box -->
+       <div class="max-w-xl mx-auto relative group">
+         <div class="absolute inset-0 bg-primary/20 rounded-xl blur opacity-25 group-hover:opacity-40 transition-opacity"></div>
+         <form (submit)="onSearch($event)" class="relative flex items-center bg-white rounded-xl shadow-card overflow-hidden h-14 md:h-16 ring-1 ring-gray-200 focus-within:ring-2 focus-within:ring-primary transition-all">
+           <div class="pl-5 text-slate-400 flex items-center justify-center">
+             <span class="material-symbols-outlined text-[20px]">search</span>
+           </div>
+           <input [(ngModel)]="searchQuery" name="query" class="w-full h-full border-none bg-transparent px-4 text-slate-900 placeholder-slate-400 focus:ring-0 text-base md:text-lg" placeholder="What do you want to learn today?" type="text">
+           <div class="pr-2">
+             <button type="submit" class="bg-primary text-white h-10 md:h-12 px-6 rounded-lg text-sm md:text-base font-bold hover:bg-primary-dark transition-colors">
+               Search
+             </button>
+           </div>
+         </form>
+       </div>
+       <div class="mt-8 flex flex-wrap justify-center gap-2">
+         <span class="text-sm text-slate-500 mr-2">Popular:</span>
+         <a class="text-sm font-medium hover:text-primary hover:underline underline-offset-4 decoration-primary/30 cursor-pointer">Python</a>
+         <span class="text-gray-300">•</span>
+         <a class="text-sm font-medium hover:text-primary hover:underline underline-offset-4 decoration-primary/30 cursor-pointer">UX Design</a>
+         <span class="text-gray-300">•</span>
+         <a class="text-sm font-medium hover:text-primary hover:underline underline-offset-4 decoration-primary/30 cursor-pointer">Marketing</a>
+       </div>
+     </div>
+  </section>
+
+  <!-- Categories -->
+  <section class="border-y border-gray-100 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex items-center gap-4 overflow-x-auto hide-scrollbar pb-2 md:pb-0 md:justify-center">
+         <button
+           (click)="selectCategory(null)"
+           [class]="selectedCategory() === null
+             ? 'shrink-0 px-4 py-2 rounded-lg bg-primary text-white text-sm font-bold shadow-sm'
+             : 'shrink-0 px-4 py-2 rounded-lg bg-transparent hover:bg-gray-100 text-slate-500 text-sm font-medium transition-colors'">
+           All Topics
+         </button>
+         @for (cat of categoryService.categories(); track cat._id) {
+           <button
+             (click)="selectCategory(cat.slug)"
+             [class]="selectedCategory() === cat.slug
+               ? 'shrink-0 px-4 py-2 rounded-lg bg-primary text-white text-sm font-bold shadow-sm'
+               : 'shrink-0 px-4 py-2 rounded-lg bg-transparent hover:bg-gray-100 text-slate-500 text-sm font-medium transition-colors'">
+             @if (cat.icon) {
+               <span class="material-symbols-outlined text-sm mr-1 align-middle">{{ cat.icon }}</span>
+             }
+             {{ cat.name }}
+           </button>
+         }
+      </div>
+    </div>
+  </section>
+
+  <!-- Grid -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="flex items-center justify-between mb-8">
+      <h2 class="text-2xl font-bold tracking-tight">Recent Tutorials</h2>
+      <a class="text-primary text-sm font-bold hover:opacity-80 flex items-center gap-1 cursor-pointer">
+        View All <span class="material-symbols-outlined text-lg">arrow_forward</span>
+      </a>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      @for (tutorial of tutorials(); track tutorial._id; let i = $index) {
+        <article [routerLink]="['/tutorial', tutorial._id]" class="group bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-card-hover transition-all duration-300 flex flex-col h-full cursor-pointer">
+           <div class="relative h-48 overflow-hidden bg-gray-100">
+             <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+             <img [src]="tutorial.coverImage || getRandomImage(i)" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" alt="Cover">
+             <span class="absolute top-3 left-3 z-20 bg-white/90 backdrop-blur-sm px-2 py-1 rounded text-xs font-bold text-primary uppercase tracking-wider">
+               {{ getCategoryName(tutorial.category) }}
+             </span>
+           </div>
+           <div class="p-5 flex-1 flex flex-col">
+             <h3 class="text-lg font-bold mb-2 leading-snug group-hover:text-primary transition-colors line-clamp-2">
+               {{ tutorial.title }}
+             </h3>
+             <p class="text-sm text-slate-500 mb-4 line-clamp-2 flex-1">
+               {{ tutorial.description }}
+             </p>
+             <div class="mt-auto flex items-center justify-between pt-4 border-t border-gray-100">
+               <div class="flex items-center gap-2">
+                 <div class="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold">
+                   {{ getAuthorName(tutorial).charAt(0).toUpperCase() }}
+                 </div>
+                 <span class="text-xs font-semibold">{{ getAuthorName(tutorial) }}</span>
+               </div>
+               <span class="text-xs text-slate-400 flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[14px]">schedule</span> 10m
+               </span>
+             </div>
+           </div>
+        </article>
+      }
+      @if (tutorials().length === 0) {
+        <div class="col-span-full py-12 text-center text-slate-500">
+          <p>No tutorials found. Be the first to post one!</p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-white pt-16 pb-8 border-t border-gray-200 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+         <div class="col-span-2 md:col-span-1">
+           <div class="flex items-center gap-2 mb-4">
+             <span class="material-symbols-outlined text-primary text-2xl">local_library</span>
+             <span class="text-lg font-bold">Knowledge Hub</span>
+           </div>
+           <p class="text-sm text-slate-500 mb-4">Empowering the world to learn, share, and grow together.</p>
+         </div>
+         <div>
+            <h4 class="text-sm font-bold uppercase tracking-wider mb-4">Platform</h4>
+            <ul class="space-y-3 text-sm text-slate-500">
+              <li><a class="hover:text-primary transition-colors" href="#">Browse</a></li>
+              <li><a class="hover:text-primary transition-colors" href="#">Pricing</a></li>
+            </ul>
+         </div>
+      </div>
+      <div class="pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center text-xs text-slate-400">
+        <p>© 2026 Knowledge Hub Inc. All rights reserved.</p>
+        <div class="mt-4 md:mt-0">Made with <span class="text-secondary">♥</span> for learning</div>
+      </div>
+    </div>
+  </footer>
+</div>

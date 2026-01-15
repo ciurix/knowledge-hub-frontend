@@ -1,0 +1,92 @@
+<div class="min-h-screen bg-background-light font-display">
+  <!-- Top Navigation Bar -->
+  <header class="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md px-6 py-3">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-6">
+        <div class="flex items-center gap-2 text-primary">
+          <span class="material-symbols-outlined text-3xl font-bold">menu_book</span>
+          <h2 class="text-lg font-extrabold tracking-tight hidden sm:block">Knowledge Hub</h2>
+        </div>
+        <div class="h-6 w-px bg-slate-200"></div>
+        <nav class="flex items-center gap-2 text-sm font-medium">
+          <a class="text-slate-500 hover:text-primary transition-colors cursor-pointer" (click)="discard()">Dashboard</a>
+          <span class="text-slate-300">/</span>
+          <span class="text-slate-900">Editor</span>
+        </nav>
+      </div>
+      <div class="flex items-center gap-3">
+        @if (isLoading()) {
+          <span class="text-xs text-primary italic mr-2">Saving...</span>
+        }
+        <button (click)="save(false)" class="px-4 py-2 rounded-xl text-sm font-bold bg-[#e6f3f4] text-primary hover:bg-[#d5ebed] transition-all">
+           Save Draft
+        </button>
+        <button (click)="save(true)" class="px-5 py-2 rounded-xl text-sm font-bold bg-primary text-white hover:opacity-90 shadow-sm transition-all">
+           Publish
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 py-10 px-4">
+    <div class="max-w-[860px] mx-auto space-y-8" [formGroup]="form">
+      <!-- Page Heading & Metadata -->
+      <div class="flex flex-col gap-4">
+        <div class="flex justify-between items-start">
+          <div class="flex-1">
+            <input formControlName="title" class="w-full bg-transparent border-none p-0 text-5xl font-black focus:ring-0 placeholder:text-slate-200 text-slate-900" placeholder="Tutorial Title" type="text">
+            <p class="mt-2 text-slate-500 text-lg font-normal">Share your expertise with the world</p>
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-6 py-4 border-y border-slate-200">
+           <!-- Category Dropdown -->
+           <div class="flex items-center gap-2">
+             <span class="material-symbols-outlined text-primary text-xl">category</span>
+             <select formControlName="category" class="bg-transparent border-none text-sm font-semibold focus:ring-0 p-0 text-slate-600 cursor-pointer">
+               <option value="">Select Category</option>
+               @for (cat of categoryService.categories(); track cat._id) {
+                 <option [value]="cat.slug">{{ cat.name }}</option>
+               }
+             </select>
+           </div>
+           <!-- Mock metadata fields just for visual fidelity -->
+           <div class="flex items-center gap-2">
+             <span class="material-symbols-outlined text-primary text-xl">link</span>
+             <input formControlName="sourceLink" placeholder="Source URL (Optional)" class="bg-transparent border-none text-sm font-semibold focus:ring-0 p-0 text-slate-600 placeholder:text-slate-400 w-64">
+           </div>
+           <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary text-xl">image</span>
+              <input formControlName="coverImage" placeholder="Cover Image URL (Optional)" class="bg-transparent border-none text-sm font-semibold focus:ring-0 p-0 text-slate-600 placeholder:text-slate-400 w-64">
+           </div>
+        </div>
+      </div>
+
+      <!-- Editor Section -->
+      <div class="editor-canvas relative min-h-[500px] bg-white rounded-xl border border-slate-200 shadow-sm transition-all p-8 group focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary">
+         <!-- Toolbar Overlay -->
+        <div class="absolute -top-6 left-1/2 -translate-x-1/2 flex items-center gap-1 p-1 bg-white border border-slate-200 rounded-xl shadow-lg z-10">
+          <button class="p-2 hover:bg-slate-50 rounded-lg text-slate-700"><span class="material-symbols-outlined text-lg">format_bold</span></button>
+          <button class="p-2 hover:bg-slate-50 rounded-lg text-slate-700"><span class="material-symbols-outlined text-lg">format_italic</span></button>
+          <button class="p-2 hover:bg-slate-50 rounded-lg text-slate-700"><span class="material-symbols-outlined text-lg">link</span></button>
+          <div class="w-px h-4 bg-slate-200 mx-1"></div>
+          <button class="p-2 hover:bg-slate-50 rounded-lg text-primary"><span class="material-symbols-outlined text-lg">image</span></button>
+          <button class="p-2 hover:bg-slate-50 rounded-lg text-primary"><span class="material-symbols-outlined text-lg">code</span></button>
+        </div>
+
+        <textarea formControlName="description" class="w-full h-full min-h-[450px] resize-none border-none focus:ring-0 text-lg leading-relaxed text-slate-600 placeholder:text-slate-300"></textarea>
+
+        <div class="absolute bottom-6 right-8">
+          <span class="text-xs font-mono text-slate-300 uppercase tracking-widest">End of content</span>
+        </div>
+      </div>
+
+      <!-- Secondary Actions -->
+      <div class="flex items-center justify-between pt-8">
+        <button (click)="discard()" class="flex items-center gap-2 text-slate-500 hover:text-red-500 font-bold transition-colors">
+          <span class="material-symbols-outlined text-lg">delete_forever</span>
+          Discard Changes
+        </button>
+      </div>
+    </div>
+  </main>
+</div>

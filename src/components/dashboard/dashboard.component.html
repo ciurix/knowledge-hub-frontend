@@ -1,0 +1,130 @@
+<div class="flex h-screen overflow-hidden bg-background-light text-slate-900 font-display">
+  <!-- Sidebar Navigation -->
+  <aside class="w-72 bg-white border-r border-slate-200 flex flex-col h-full shrink-0">
+    <div class="p-6 flex items-center gap-3">
+      <div class="size-10 bg-primary rounded-lg flex items-center justify-center text-white">
+        <span class="material-symbols-outlined text-2xl">menu_book</span>
+      </div>
+      <div>
+        <h1 class="heading-font text-lg font-bold leading-none">Knowledge</h1>
+        <p class="text-xs text-primary font-bold uppercase tracking-wider">Hub</p>
+      </div>
+    </div>
+    <nav class="flex-1 px-4 mt-4 space-y-1 overflow-y-auto">
+      <div routerLink="/" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer group">
+        <span class="material-symbols-outlined text-slate-500 group-hover:text-primary">home</span>
+        <span class="text-sm font-semibold">Home</span>
+      </div>
+      <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/10 text-primary transition-colors cursor-pointer">
+        <span class="material-symbols-outlined fill-[1]">dashboard</span>
+        <span class="text-sm font-bold">My Tutorials</span>
+      </div>
+      <div routerLink="/profile" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer group">
+        <span class="material-symbols-outlined text-slate-500 group-hover:text-primary">person</span>
+        <span class="text-sm font-semibold">My Profile</span>
+      </div>
+      @if (authService.currentUser()?.role === 'admin') {
+        <div routerLink="/admin" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-amber-50 transition-colors cursor-pointer group">
+          <span class="material-symbols-outlined text-amber-500">shield</span>
+          <span class="text-sm font-semibold text-amber-700">Admin Panel</span>
+        </div>
+      }
+    </nav>
+    <div class="p-4 border-t border-slate-100">
+      <div class="flex items-center gap-3 p-2 rounded-xl bg-slate-50">
+        <div class="size-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
+           {{ authService.currentUser()?.email?.charAt(0)?.toUpperCase() || 'U' }}
+        </div>
+        <div class="flex-1 overflow-hidden">
+          <p class="text-sm font-bold truncate">{{ authService.currentUser()?.email }}</p>
+          <p class="text-xs text-slate-500 truncate">Instructor</p>
+        </div>
+        <button (click)="authService.logout()" class="material-symbols-outlined text-slate-400 text-sm cursor-pointer hover:text-red-500">logout</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 overflow-y-auto bg-background-light scroll-smooth p-8">
+    <div class="max-w-6xl mx-auto">
+      <!-- Page Header -->
+      <header class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+        <div>
+          <h2 class="heading-font text-4xl font-extrabold tracking-tight">My Tutorials</h2>
+          <p class="text-slate-500 mt-1">Manage and update your contributions to the library.</p>
+        </div>
+        <a routerLink="/editor" class="bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-primary/20 transform hover:-translate-y-0.5">
+          <span class="material-symbols-outlined">add_circle</span>
+          Post New Tutorial
+        </a>
+      </header>
+
+      <!-- Filter Bar -->
+      <div class="flex flex-col md:flex-row gap-4 mb-8">
+        <div class="flex-1 relative">
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+            <span class="material-symbols-outlined">search</span>
+          </div>
+          <input [(ngModel)]="searchFilter" class="w-full pl-11 pr-4 py-3 bg-white border-none rounded-xl focus:ring-2 focus:ring-primary shadow-sm text-sm font-medium" placeholder="Search by title..." type="text">
+        </div>
+      </div>
+
+      <!-- Tutorial List -->
+      <div class="bg-white rounded-xl border border-slate-100 shadow-soft overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[800px] border-collapse">
+            <thead>
+              <tr class="border-b border-slate-100 bg-slate-50/50">
+                <th class="text-left py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider w-[45%]">Tutorial Title</th>
+                <th class="text-left py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider w-[20%]">Status</th>
+                <th class="text-right py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider w-[20%]">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              @for (tutorial of filteredTutorials; track tutorial._id) {
+                <tr class="group hover:bg-primary/5 transition-colors">
+                  <td class="py-5 px-6">
+                    <div class="flex items-start gap-4">
+                      <div class="size-10 rounded-lg bg-indigo-100 flex items-center justify-center shrink-0 text-indigo-600">
+                        <span class="material-symbols-outlined text-[20px]">article</span>
+                      </div>
+                      <div>
+                        <h3 class="text-base font-bold text-slate-900 group-hover:text-primary transition-colors cursor-pointer" (click)="editTutorial(tutorial._id!)">
+                           {{ tutorial.title }}
+                        </h3>
+                        <p class="text-sm text-slate-500 mt-0.5 line-clamp-1">{{ tutorial.description }}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="py-5 px-6">
+                    <span [class]="getStatusClass(tutorial.published)" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border">
+                       <span [class.bg-green-500]="tutorial.published" [class.bg-accent-coral]="!tutorial.published" class="size-1.5 rounded-full"></span>
+                       {{ getStatusLabel(tutorial.published) }}
+                    </span>
+                  </td>
+                  <td class="py-5 px-6 text-right">
+                    <div class="flex items-center justify-end gap-2">
+                      <button (click)="editTutorial(tutorial._id!)" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary/10 rounded-md transition-colors">
+                        <span class="material-symbols-outlined text-[16px]">edit</span> Edit
+                      </button>
+                      <button (click)="deleteTutorial(tutorial._id!)" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors">
+                        <span class="material-symbols-outlined text-[16px]">delete</span> Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+              @if (filteredTutorials.length === 0) {
+                 <tr>
+                   <td colspan="3" class="py-8 text-center text-slate-500">
+                     No tutorials found matching your search.
+                   </td>
+                 </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
